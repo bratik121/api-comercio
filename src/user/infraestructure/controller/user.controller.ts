@@ -37,6 +37,7 @@ import { CreateUserService } from 'src/user/aplication/services';
 import { RegisteredUserMapper } from '../mappers/domain-event-mapper';
 import { RabbitMQEventPublisher } from 'src/common/infraestructure/events/publishers/rabbittMq.publisher';
 import { CreateUserDto } from '../dtos';
+import { Channel } from 'amqplib';
 
 @ApiTags('User')
 @Controller('user')
@@ -66,9 +67,13 @@ export class UserController {
   private readonly _saveUserEvent: IEventSubscriber<UserRegisteredEvent>;
 
   constructor(
+    @Inject('RABBITMQ_CONNECTION') private readonly channel: Channel,
     @InjectEntityManager() private readonly entityManager: EntityManager,
     @InjectModel('user') userModel: Model<OdmUserEntity>,
   ) {
+    //*Publisher
+    this._eventPublisher = new RabbitMQEventPublisher(channel);
+
     //* Repositories
     this._odmUserRepository = new OdmUserRepository(
       userModel,
