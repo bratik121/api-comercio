@@ -2,8 +2,12 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
-import { OrmDatabaseModule } from './config/db/orm-db.module';
-import { OdmDatabaseModule } from './config/db/odm-db.module';
+import {
+  OrmDatabaseModule,
+  OdmDatabaseModule,
+  RabbitMQModule,
+} from './config/';
+import { UserController } from './user/infraestructure/controller/user.controller';
 
 @Module({
   imports: [
@@ -12,8 +16,9 @@ import { OdmDatabaseModule } from './config/db/odm-db.module';
     }),
     OrmDatabaseModule,
     OdmDatabaseModule,
+    RabbitMQModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, UserController],
   providers: [AppService],
 })
 export class AppModule {}
