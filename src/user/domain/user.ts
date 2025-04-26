@@ -20,6 +20,7 @@ export class User extends AggregateRoot<UserIdVo> {
     password: UserPasswordVo,
   ) {
     super(id, UserCreatedEvent.create(id, name, email, password));
+    this.name = name;
     this.email = email;
     this.password = password;
   }

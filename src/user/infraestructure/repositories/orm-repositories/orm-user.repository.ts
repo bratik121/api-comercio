@@ -90,7 +90,7 @@ export class OrmUserRepository
       return Result.success<User>(this._ormUserMapper.toDomain(savedUser));
     } catch (error) {
       return Result.fail<User>(
-        new SaveUserException(`Erro al guardar el usuario: ${error.message}`),
+        new SaveUserException(`Error al guardar el usuario: ${error.message}`),
       );
     }
   }
