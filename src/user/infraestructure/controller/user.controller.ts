@@ -1,6 +1,7 @@
-import { Body, Controller, Inject, Post } from '@nestjs/common';
+import { Body, Controller, Inject, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
@@ -39,9 +40,12 @@ import { RabbitMQEventPublisher } from 'src/common/infraestructure/events/publis
 import { CreateUserDto } from '../dtos';
 import { Channel } from 'amqplib';
 import { ExceptionDecorator } from 'src/common/aplication/aspects/exceptionDecorator';
+import { JwtAuthGuard } from 'src/auth/infraestructure/guards/jwt-guard.guard';
 
 @ApiTags('User')
 @Controller('user')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class UserController {
   //?Id generator
   private readonly genId: IIdGen = new UuidGen();
