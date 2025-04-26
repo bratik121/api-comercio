@@ -38,6 +38,7 @@ import { RegisteredUserMapper } from '../mappers/domain-event-mapper';
 import { RabbitMQEventPublisher } from 'src/common/infraestructure/events/publishers/rabbittMq.publisher';
 import { CreateUserDto } from '../dtos';
 import { Channel } from 'amqplib';
+import { ExceptionDecorator } from 'src/common/aplication/aspects/exceptionDecorator';
 
 @ApiTags('User')
 @Controller('user')
@@ -85,12 +86,14 @@ export class UserController {
     );
 
     //*Services
-    this.createUserService = new CreateUserService(
-      this._odmUserRepository,
-      this._ormUserRepository,
-      this._eventPublisher,
-      this.encryptor,
-      this.genId,
+    this.createUserService = new ExceptionDecorator(
+      new CreateUserService(
+        this._odmUserRepository,
+        this._ormUserRepository,
+        this._eventPublisher,
+        this.encryptor,
+        this.genId,
+      ),
     );
 
     //*Events
@@ -98,7 +101,7 @@ export class UserController {
 
     //* Suscribe to events
     this._eventPublisher.subscribe(
-      'UserRegistedEvent',
+      UserRegisteredEvent.name,
       [this._saveUserEvent],
       RegisteredUserMapper,
     );
