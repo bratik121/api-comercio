@@ -10,6 +10,7 @@ import {
 import { UserController } from './user/infraestructure/controller/user.controller';
 import { AuthController } from './auth/infraestructure/controller/auth.controller';
 import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from './auth/infraestructure/strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -30,6 +31,6 @@ import { JwtModule } from '@nestjs/jwt';
     RabbitMQModule,
   ],
   controllers: [AppController, AuthController, UserController],
-  providers: [AppService],
+  providers: [JwtStrategy, AppService],
 })
 export class AppModule {}
