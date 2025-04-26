@@ -1,4 +1,4 @@
-import { IServiceResponse } from 'src/common/infraestructure/interfaces/IServices';
+import { IServiceResponse } from 'src/common/aplication/services/IServices';
 
 export class CreateUserReponse implements IServiceResponse {
   constructor(

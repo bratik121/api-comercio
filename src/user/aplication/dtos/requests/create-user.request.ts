@@ -1,4 +1,4 @@
-import { IServiceRequest } from 'src/common/infraestructure/interfaces/IServices';
+import { IServiceRequest } from 'src/common/aplication/services/IServices';
 
 export class CreateUserRequest implements IServiceRequest {
   constructor(
