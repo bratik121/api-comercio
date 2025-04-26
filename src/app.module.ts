@@ -8,6 +8,7 @@ import {
   RabbitMQModule,
 } from './config/';
 import { UserController } from './user/infraestructure/controller/user.controller';
+import { AuthController } from './auth/infraestructure/controller/auth.controller';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { UserController } from './user/infraestructure/controller/user.controlle
     OdmDatabaseModule,
     RabbitMQModule,
   ],
-  controllers: [AppController, UserController],
+  controllers: [AppController, AuthController, UserController],
   providers: [AppService],
 })
 export class AppModule {}

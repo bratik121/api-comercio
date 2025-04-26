@@ -47,7 +47,6 @@ export class UserController {
   private readonly genId: IIdGen = new UuidGen();
   //? Encripter
   private readonly encryptor: IEncryptor = new BcryptEncryptor();
-
   //? Publisher
   private readonly _eventPublisher: IEventPublisher;
 
