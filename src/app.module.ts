@@ -12,6 +12,7 @@ import { AuthController } from './auth/infraestructure/controller/auth.controlle
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './auth/infraestructure/strategies/jwt.strategy';
 import { ProductController } from './products/infraestructure/controller/product.controller';
+import { OrderController } from './order/infraestructure/controller/order.controller';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ProductController } from './products/infraestructure/controller/product
     AuthController,
     UserController,
     ProductController,
+    OrderController,
   ],
   providers: [JwtStrategy, AppService],
 })

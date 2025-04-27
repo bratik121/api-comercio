@@ -37,7 +37,7 @@ export class OrmProductRepository
       if (!product) {
         return Result.fail<Product>(
           new NotFoundProductException(
-            `Product with id ${id.getId()} not found`,
+            `Producto con id ${id.getId()} no encontrado`,
           ),
         );
       }
@@ -46,7 +46,7 @@ export class OrmProductRepository
     } catch (error) {
       return Result.fail<Product>(
         new PersistenceException(
-          `Error while finding product by id: ${error.message}`,
+          `Error al buscar el producto por id: ${error.message}`,
         ),
       );
     }
@@ -62,7 +62,7 @@ export class OrmProductRepository
       if (!product) {
         return Result.fail<Product>(
           new NotFoundProductException(
-            `Product with name ${name.getName()} not found`,
+            `Producto con nombre ${name.getName()} no encontrado`,
           ),
         );
       }
@@ -71,7 +71,7 @@ export class OrmProductRepository
     } catch (error) {
       return Result.fail<Product>(
         new PersistenceException(
-          `Error while finding product by name: ${error.message}`,
+          `Error al buscar el producto por nombre: ${error.message}`,
         ),
       );
     }
@@ -87,7 +87,7 @@ export class OrmProductRepository
     } catch (error) {
       return Result.fail<Product>(
         new SaveProductException(
-          `Error while saving product: ${error.message}`,
+          `Error al guardar el producto: ${error.message}`,
         ),
       );
     }
@@ -103,7 +103,7 @@ export class OrmProductRepository
     } catch (error) {
       return Result.fail<Product>(
         new UpdateProductException(
-          `Error while updating product: ${error.message}`,
+          `Error al actualizar el producto: ${error.message}`,
         ),
       );
     }
@@ -123,7 +123,35 @@ export class OrmProductRepository
     } catch (error) {
       return Result.fail<Product[]>(
         new PersistenceException(
-          `Error while finding products: ${error.message}`,
+          `Error al buscar los productos: ${error.message}`,
+        ),
+      );
+    }
+  }
+
+  async deleteProduct(id: ProductIdVo): Promise<Result<Product>> {
+    try {
+      const product = await this.findOne({
+        select: ['id', 'name', 'description', 'price', 'stock'],
+        where: { id: id.getId() },
+      });
+
+      if (!product) {
+        return Result.fail<Product>(
+          new NotFoundProductException(
+            `Producto con id ${id.getId()} no encontrado`,
+          ),
+        );
+      }
+      const domainProduct = this._ormProductMapper.toDomain(product);
+
+      await this.remove(product);
+
+      return Result.success<Product>(domainProduct);
+    } catch (error) {
+      return Result.fail<Product>(
+        new PersistenceException(
+          `Error al eliminar el producto: ${error.message}`,
         ),
       );
     }

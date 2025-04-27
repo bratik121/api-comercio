@@ -20,7 +20,6 @@ export class FindProductsService extends IService<
     command: FindProductsRequest,
   ): Promise<Result<FindProductsResponse>> {
     const pagination = command.pagination;
-
     const productsResult =
       await this._odmProductRepository.findProducts(pagination);
 

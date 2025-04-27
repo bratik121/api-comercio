@@ -11,6 +11,7 @@ import {
   UpdateProductException,
 } from '../../exceptions';
 import { PersistenceException } from 'src/common/exceptions';
+import { IPagination } from 'src/common/domain/pagination.interface';
 
 export class OdmProductRepository implements IOdmProductRepository {
   private readonly productModel: Model<OdmProductEntity>;
@@ -26,13 +27,11 @@ export class OdmProductRepository implements IOdmProductRepository {
 
   async findProductById(id: ProductIdVo): Promise<Result<Product>> {
     try {
-      console.log('Product mapper', this.productMapper);
       const product = await this.productModel
         .findOne({
           id: id.getId(),
         })
         .exec();
-      console.log('product', product);
       if (!product) {
         return Result.fail<Product>(
           new NotFoundProductException(
@@ -73,9 +72,22 @@ export class OdmProductRepository implements IOdmProductRepository {
     }
   }
 
-  async findProducts(): Promise<Result<Product[]>> {
+  async findProducts(pagination?: IPagination): Promise<Result<Product[]>> {
     try {
-      const products = await this.productModel.find().exec();
+      const query = this.productModel.find();
+
+      // Aplicar paginación si está definida
+      if (pagination) {
+        if (pagination.limit) {
+          query.limit(pagination.limit);
+        }
+        if (pagination.offset) {
+          query.skip(pagination.offset);
+        }
+      }
+
+      const products = await query.exec();
+
       return Result.success<Product[]>(
         products.map((product) => this.productMapper.toDomain(product)),
       );
@@ -106,7 +118,7 @@ export class OdmProductRepository implements IOdmProductRepository {
     try {
       const productEntity = this.productMapper.toPersistence(product);
       const updatedProduct = await this.productModel
-        .findByIdAndUpdate(productEntity.id, productEntity, { new: true })
+        .updateOne({ id: product.getId().getId() }, productEntity)
         .exec();
 
       if (!updatedProduct) {
@@ -117,13 +129,36 @@ export class OdmProductRepository implements IOdmProductRepository {
         );
       }
 
-      return Result.success<Product>(
-        this.productMapper.toDomain(updatedProduct),
-      );
+      return Result.success<Product>(product);
     } catch (error) {
       return Result.fail<Product>(
         new UpdateProductException(
           `Error al actualizar el producto: ${error.message}`,
+        ),
+      );
+    }
+  }
+  async deleteProduct(id: ProductIdVo): Promise<Result<Product>> {
+    try {
+      const product = await this.productModel
+        .findOne({ id: id.getId() })
+        .exec();
+
+      if (!product) {
+        return Result.fail<Product>(
+          new NotFoundProductException(
+            `Producto con id ${id.getId()} no encontrado`,
+          ),
+        );
+      }
+
+      await this.productModel.deleteOne({ id: id.getId() }).exec();
+
+      return Result.success<Product>(this.productMapper.toDomain(product));
+    } catch (error) {
+      return Result.fail<Product>(
+        new PersistenceException(
+          `Error al eliminar el producto: ${error.message}`,
         ),
       );
     }
