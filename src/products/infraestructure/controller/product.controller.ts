@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -35,6 +36,8 @@ import {
   CreateProductResponse,
   FindProductByIdRequest,
   FindProductByIdResponse,
+  FindProductsRequest,
+  FindProductsResponse,
 } from 'src/products/aplication/dtos';
 import { IEventPublisher } from 'src/common/aplication/events/event-publisher.interfaces';
 import { IEventSubscriber } from 'src/common/aplication/events/event-suscriber.interface';
@@ -48,6 +51,7 @@ import { OdmSaveProductEvent } from '../events';
 import {
   CreateProductService,
   FindProductByIdService,
+  FindProductsService,
 } from 'src/products/aplication/services';
 import { RegisteredProductMapper } from '../mappers/domain-event-mappers';
 import { RabbitMQEventPublisher } from 'src/common/infraestructure/events/publishers/rabbittMq.publisher';
@@ -86,6 +90,10 @@ export class ProductController {
     FindProductByIdRequest,
     FindProductByIdResponse
   >;
+  private findProductsService: IService<
+    FindProductsRequest,
+    FindProductsResponse
+  >;
 
   //? Events
   private readonly _saveProductEvent: IEventSubscriber<ProductRegistered>;
@@ -120,6 +128,10 @@ export class ProductController {
 
     this.findProductByIdService = new ExceptionDecorator(
       new FindProductByIdService(this._odmProductRepository),
+    );
+
+    this.findProductsService = new ExceptionDecorator(
+      new FindProductsService(this._odmProductRepository),
     );
 
     //* Events
@@ -164,7 +176,24 @@ export class ProductController {
 
     const response = await this.findProductByIdService.execute(request);
     if (response.isSuccess()) {
-      return response.getValue().dataToString();
+      return response.getValue();
+    }
+    return response;
+  }
+
+  @Get()
+  @ApiOkResponse({ description: 'Products found successfully' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  async findProducts(
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number,
+  ) {
+    const pagination = limit && offset ? { limit, offset } : undefined;
+    const request = new FindProductsRequest(pagination);
+
+    const response = await this.findProductsService.execute(request);
+    if (response.isSuccess()) {
+      return response.getValue();
     }
     return response;
   }
