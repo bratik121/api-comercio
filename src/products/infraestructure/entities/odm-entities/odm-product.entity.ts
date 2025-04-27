@@ -52,14 +52,24 @@ export const OdmProductEntitySchema =
   SchemaFactory.createForClass(OdmProductEntity);
 
 OdmProductEntitySchema.pre('deleteOne', async function (next) {
-  const product = await this.model.findOne(this.getQuery());
-  const productId = product.id;
+  const productId = this.getFilter().id;
 
-  await this.model.db.model('order_item').deleteMany({
-    productId: productId,
-  });
+  // Verificar si el ID existe
+  if (!productId) {
+    console.error('No productId found in query filter');
+    return next(new Error('Product ID not provided'));
+  }
 
-  next();
+  try {
+    // Eliminar los OrderItems relacionados
+    const result = await this.model.db.model('order_item').deleteMany({
+      productId: productId,
+    });
+
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 export const OdmProductEntityModel: ModelDefinition = {

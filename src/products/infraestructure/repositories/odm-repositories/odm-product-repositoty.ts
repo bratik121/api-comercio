@@ -141,7 +141,7 @@ export class OdmProductRepository implements IOdmProductRepository {
   async deleteProduct(id: ProductIdVo): Promise<Result<Product>> {
     try {
       const product = await this.productModel
-        .findOneAndDelete({ id: id.getId() })
+        .findOne({ id: id.getId() })
         .exec();
 
       if (!product) {
@@ -151,6 +151,8 @@ export class OdmProductRepository implements IOdmProductRepository {
           ),
         );
       }
+
+      await this.productModel.deleteOne({ id: id.getId() }).exec();
 
       return Result.success<Product>(this.productMapper.toDomain(product));
     } catch (error) {

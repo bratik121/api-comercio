@@ -6,8 +6,6 @@ import { DeleteProductRequest } from '../dtos/requests/delete-product.request';
 import { DeleteProductResponse } from '../dtos/responses/delete-product.response';
 import { Result } from 'src/common/abstractions/result';
 import { ProductIdVo } from 'src/products/domain/value-objects';
-import { NotFoundProductException } from 'src/products/infraestructure/exceptions';
-import { Product } from 'src/products/domain/product';
 
 export class DeleteProductService extends IService<
   DeleteProductRequest,

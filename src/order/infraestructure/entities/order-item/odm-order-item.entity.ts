@@ -9,7 +9,7 @@ export class OdmOrderItemEntity {
   @Prop({ required: true, type: Types.UUID })
   orderId: string;
 
-  @Prop({ required: true, type: Types.UUID })
+  @Prop({ required: true, type: Types.UUID, index: true })
   productId: string;
 
   @Prop({ required: true, type: Number })

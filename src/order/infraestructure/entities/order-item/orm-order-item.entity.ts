@@ -19,7 +19,10 @@ export class OrmOrderItemEntity {
   @JoinColumn({ name: 'id_order' })
   order: OrmOrderEntity;
 
-  @ManyToOne(() => OrmProductEntity, (product) => product.id, { eager: true })
+  @ManyToOne(() => OrmProductEntity, (product) => product.id, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
   @JoinColumn({ name: 'id_product' })
   product: OrmProductEntity;
 
