@@ -1,6 +1,6 @@
 import { BadRequestException } from 'src/common/exceptions/bad-request.exception';
 
-export class InvalidUserPasswordException extends BadRequestException {
+export class InvalidOrderIdException extends BadRequestException {
   constructor(message: string) {
     super(message);
   }
