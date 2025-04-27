@@ -20,11 +20,11 @@ export class ProductUpdatedEvent extends DomainEvent {
 
   serialize(): string {
     return JSON.stringify({
-      id: this.id.getId(),
-      name: this.name?.getName(),
-      description: this.description?.getDescription(),
-      price: this.price?.getPrice(),
-      stock: this.stock?.getStock(),
+      id: this.id,
+      name: this.name,
+      description: this.description,
+      price: this.price,
+      stock: this.stock,
     });
   }
 
