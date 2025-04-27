@@ -1,10 +1,19 @@
-import { Body, Controller, Inject, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
+  ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { IIdGen } from 'src/common/aplication/id-gen/id-gen.interfaces';
@@ -24,6 +33,8 @@ import { IService } from 'src/common/aplication/services/IServices';
 import {
   CreateProductRequest,
   CreateProductResponse,
+  FindProductByIdRequest,
+  FindProductByIdResponse,
 } from 'src/products/aplication/dtos';
 import { IEventPublisher } from 'src/common/aplication/events/event-publisher.interfaces';
 import { IEventSubscriber } from 'src/common/aplication/events/event-suscriber.interface';
@@ -34,7 +45,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { OdmProductRepository } from '../repositories/odm-repositories/odm-product-repositoty';
 import { OrmProductRepository } from '../repositories/orm-repositories/orm-product.repository';
 import { OdmSaveProductEvent } from '../events';
-import { CreateProductService } from 'src/products/aplication/services';
+import {
+  CreateProductService,
+  FindProductByIdService,
+} from 'src/products/aplication/services';
 import { RegisteredProductMapper } from '../mappers/domain-event-mappers';
 import { RabbitMQEventPublisher } from 'src/common/infraestructure/events/publishers/rabbittMq.publisher';
 import { CreateProductDto } from '../dtos';
@@ -68,6 +82,10 @@ export class ProductController {
     CreateProductRequest,
     CreateProductResponse
   >;
+  private findProductByIdService: IService<
+    FindProductByIdRequest,
+    FindProductByIdResponse
+  >;
 
   //? Events
   private readonly _saveProductEvent: IEventSubscriber<ProductRegistered>;
@@ -100,6 +118,10 @@ export class ProductController {
       ),
     );
 
+    this.findProductByIdService = new ExceptionDecorator(
+      new FindProductByIdService(this._odmProductRepository),
+    );
+
     //* Events
     this._saveProductEvent = new OdmSaveProductEvent(
       this._odmProductRepository,
@@ -127,6 +149,20 @@ export class ProductController {
     );
 
     const response = await this.createProductService.execute(request);
+    if (response.isSuccess()) {
+      return response.getValue().dataToString();
+    }
+    return response;
+  }
+
+  @Get(':id')
+  @ApiOkResponse({ description: 'Product found successfully' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  async findProductById(@Param('id') id: string) {
+    const request = new FindProductByIdRequest(id);
+
+    const response = await this.findProductByIdService.execute(request);
     if (response.isSuccess()) {
       return response.getValue().dataToString();
     }

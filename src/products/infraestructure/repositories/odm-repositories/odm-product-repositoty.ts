@@ -26,7 +26,13 @@ export class OdmProductRepository implements IOdmProductRepository {
 
   async findProductById(id: ProductIdVo): Promise<Result<Product>> {
     try {
-      const product = await this.productModel.findById(id.getId()).exec();
+      console.log('Product mapper', this.productMapper);
+      const product = await this.productModel
+        .findOne({
+          id: id.getId(),
+        })
+        .exec();
+      console.log('product', product);
       if (!product) {
         return Result.fail<Product>(
           new NotFoundProductException(

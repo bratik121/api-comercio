@@ -21,7 +21,11 @@ export class OdmUserRepository implements IOdmUserRepository {
 
   async findUserById(id: UserIdVo): Promise<Result<User>> {
     try {
-      const user = await this.userModel.findById(id.getId()).exec();
+      const user = await this.userModel
+        .findOne({
+          id: id.getId(),
+        })
+        .exec();
       if (!user) {
         return Result.fail<User>(
           new NotFoundUserException(
