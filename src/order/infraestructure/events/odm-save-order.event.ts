@@ -14,6 +14,8 @@ export class OdmSaveOrderEvent
   ) {}
 
   async on(event: OrderRegisteredEvent): Promise<void> {
+    console.log('OdmSaveOrderEvent', event);
+
     const orderItems: OrderItem[] = event.orderItems.map((item) =>
       OrderItem.create(
         item.getId(),

@@ -23,7 +23,6 @@ export class OrmOrderItemMapper
   }
 
   toPersistence(domain: OrderItem): OrmOrderItemEntity {
-    console.log('toPersistence', domain);
     const entity = new OrmOrderItemEntity();
     entity.id = domain.getId().getId();
     entity.id_order = domain.getOrder().getId();

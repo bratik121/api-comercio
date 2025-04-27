@@ -131,7 +131,7 @@ export class CreateOrderService extends IService<
         throw saveOrderItemResult.getError();
       }
     }
-
+    order.Register();
     this._eventPublisher.publish(order.pullDomainEvents());
 
     return Result.success<CreateOrderResponse>(

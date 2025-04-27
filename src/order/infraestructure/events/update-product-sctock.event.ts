@@ -25,6 +25,7 @@ export class UpdateProductStockEvent
   }
 
   async on(event: OrderRegisteredEvent): Promise<void> {
+    console.log('UpdateProductStockEvent', event);
     for (const orderItem of event.orderItems) {
       const productId = orderItem.getProduct();
       const quantity = orderItem.getQuantity().getQuantity();

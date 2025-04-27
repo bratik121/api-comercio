@@ -26,7 +26,6 @@ export class OrmOrderItemRepository
       const ormOrderItem = this._ormOrderItemMapper.toPersistence(orderItem);
 
       const savedOrderItem = await this.save(ormOrderItem);
-      console.log('Saved Order Item:', savedOrderItem);
       return Result.success<OrderItem>(orderItem);
     } catch (error) {
       return Result.fail<OrderItem>(

@@ -22,8 +22,6 @@ export class FindProductByIdService extends IService<
   ): Promise<Result<FindProductByIdResponse>> {
     const productId = ProductIdVo.create(command.id);
 
-    console.log('productId', productId);
-
     const productResult =
       await this._odmProductRepository.findProductById(productId);
 
