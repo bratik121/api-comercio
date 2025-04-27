@@ -5,7 +5,7 @@ import {
   OrderTotalPriceVo,
 } from './value-objects/order';
 import { OrderItem } from './entities/order-item';
-import { CreatedOrderEvent, RegisteredOrderEvent } from './events';
+import { OrderCreatedEvent, OrderRegisteredEvent } from './events';
 import { DomainEvent } from 'src/common/domain/domain-event';
 import { UserIdVo } from 'src/user/domain/value-objects';
 
@@ -24,7 +24,7 @@ export class Order extends AggregateRoot<OrderIdVo> {
   ) {
     super(
       id,
-      CreatedOrderEvent.create(id, user, status, totalPrice, orderItems),
+      OrderCreatedEvent.create(id, user, status, totalPrice, orderItems),
     );
     this.status = status;
     this.user = user;
@@ -49,7 +49,7 @@ export class Order extends AggregateRoot<OrderIdVo> {
   }
 
   protected when(event: DomainEvent): void {
-    if (event instanceof CreatedOrderEvent) {
+    if (event instanceof OrderCreatedEvent) {
       this.user = event.user;
       this.status = event.status;
       this.totalPrice = event.totalPrice;
@@ -61,7 +61,7 @@ export class Order extends AggregateRoot<OrderIdVo> {
 
   Register(): void {
     this.apply(
-      RegisteredOrderEvent.create(
+      OrderRegisteredEvent.create(
         this.getId(),
         this.user,
         this.status,

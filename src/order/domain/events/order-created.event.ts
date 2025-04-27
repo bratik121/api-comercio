@@ -7,7 +7,7 @@ import {
 import { OrderItem } from '../entities/order-item';
 import { UserIdVo } from 'src/user/domain/value-objects';
 
-export class RegisteredOrderEvent extends DomainEvent {
+export class OrderCreatedEvent extends DomainEvent {
   private constructor(
     public readonly id: OrderIdVo,
     public readonly user: UserIdVo,
@@ -26,6 +26,7 @@ export class RegisteredOrderEvent extends DomainEvent {
       totalPrice: this.totalPrice,
       orderItems: this.orderItems.map((item) => ({
         id: item.getId(),
+        product: item.getProduct(),
         purchasedPrice: item.getPurchasedPrice(),
         quantity: item.getQuantity(),
       })),
@@ -38,7 +39,7 @@ export class RegisteredOrderEvent extends DomainEvent {
     status: OrderStatusVo,
     totalPrice: OrderTotalPriceVo,
     orderItems: OrderItem[],
-  ): RegisteredOrderEvent {
-    return new RegisteredOrderEvent(id, user, status, totalPrice, orderItems);
+  ): OrderCreatedEvent {
+    return new OrderCreatedEvent(id, user, status, totalPrice, orderItems);
   }
 }

@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { OrmOrderItemEntity } from '../order-item/';
 import { OrmUserEntity } from 'src/user/infraestructure/entities/orm-entities/orm-user.entity';
@@ -17,6 +18,7 @@ export class OrmOrderEntity {
   id: string;
 
   @ManyToOne(() => OrmUserEntity, (user) => user.id, { eager: true })
+  @JoinColumn({ name: 'id_user' })
   user: OrmUserEntity;
 
   @Column({

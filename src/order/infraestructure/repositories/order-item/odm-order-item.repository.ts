@@ -19,13 +19,9 @@ export class OdmOrderItemRepository implements IOdmOrderItemRepository {
     this.orderItemMapper = orderItemMapper;
   }
 
-  async saveOrderItem(
-    orderItem: OrderItem,
-    orderId: OrderIdVo,
-  ): Promise<Result<OrderItem>> {
+  async saveOrderItem(orderItem: OrderItem): Promise<Result<OrderItem>> {
     try {
       const odmOrderItem = this.orderItemMapper.toPersistence(orderItem);
-      odmOrderItem.orderId = orderId.getId();
       const savedOrderItem = await this.orderItemModel.create(odmOrderItem);
       return Result.success<OrderItem>(
         this.orderItemMapper.toDomain(savedOrderItem),

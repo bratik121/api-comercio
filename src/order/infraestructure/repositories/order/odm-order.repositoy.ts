@@ -6,7 +6,7 @@ import { OrderIdVo } from 'src/order/domain/value-objects/order/order-id';
 import { UserIdVo } from 'src/user/domain/value-objects';
 import { Result } from 'src/common/abstractions/result';
 import { IAsyncMapper } from 'src/common/aplication/mappers/async-mapper.interface';
-import { PersistenceException } from 'src/common/exceptions';
+import { NotFoundException, PersistenceException } from 'src/common/exceptions';
 import { IPagination } from 'src/common/domain/pagination.interface';
 
 export class OdmOrderRepository implements IOdmOrderRepository {
@@ -39,7 +39,7 @@ export class OdmOrderRepository implements IOdmOrderRepository {
 
       if (!order) {
         return Result.fail<Order>(
-          new PersistenceException(`Orden con ID ${id.getId()} no encontrada`),
+          new NotFoundException(`Orden con ID ${id.getId()} no encontrada`),
         );
       }
 

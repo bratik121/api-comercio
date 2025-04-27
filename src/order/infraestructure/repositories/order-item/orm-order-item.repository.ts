@@ -21,17 +21,13 @@ export class OrmOrderItemRepository
     this._ormOrderItemMapper = ormOrderItemMapper;
   }
 
-  async saveOrderItem(
-    orderItem: OrderItem,
-    orderId: OrderIdVo,
-  ): Promise<Result<OrderItem>> {
+  async saveOrderItem(orderItem: OrderItem): Promise<Result<OrderItem>> {
     try {
       const ormOrderItem = this._ormOrderItemMapper.toPersistence(orderItem);
-      ormOrderItem.id_order = orderId.getId();
+
       const savedOrderItem = await this.save(ormOrderItem);
-      return Result.success<OrderItem>(
-        this._ormOrderItemMapper.toDomain(savedOrderItem),
-      );
+      console.log('Saved Order Item:', savedOrderItem);
+      return Result.success<OrderItem>(orderItem);
     } catch (error) {
       return Result.fail<OrderItem>(
         new PersistenceException(

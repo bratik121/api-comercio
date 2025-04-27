@@ -1,2 +1,2 @@
-export * from './created-order.event';
-export * from './registered-order.event';
+export * from './order-created.event';
+export * from './order-registered.event';
