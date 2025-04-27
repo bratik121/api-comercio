@@ -1,6 +1,6 @@
 # 📖 Descripción
 
-API robusta para la gestión de comercios electrónicos, construida con **NestJS** implementando patrones avanzados de arquitectura. Ofrece:
+API robusta para la gestión de comercios, construida con **NestJS** implementando patrones avanzados de arquitectura. Ofrece:
 
 - **Gestión completa de órdenes y productos**
 - **Sistema de autenticación JWT** (Registro/Login)
