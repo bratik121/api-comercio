@@ -1,9 +1,19 @@
-import { Body, Controller, Post, UseGuards, Inject } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+  Inject,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiFoundResponse,
   ApiNotFoundResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -21,6 +31,12 @@ import { IOrmOrderRepository } from 'src/order/domain/repositories/order/orm-ord
 import { IService } from 'src/common/aplication/services/IServices';
 import { CreateOrderRequest } from 'src/order/aplication/dtos/requests/create-order.request';
 import { CreateOrderResponse } from 'src/order/aplication/dtos/responses/create-order.response';
+import { FindOrderByIdRequest } from 'src/order/aplication/dtos/requests/find-order-by-id.request';
+import { FindOrderByIdResponse } from 'src/order/aplication/dtos/responses/find-order-by-id.response';
+import { FindOrdersByIdUserRequest } from 'src/order/aplication/dtos/requests/find-orders-by-id-user.request';
+import { FindOrdersByIdUserResponse } from 'src/order/aplication/dtos/responses/find-orders-by-id-user.response';
+import { FindOrdersRequest } from 'src/order/aplication/dtos/requests/find-orders.request';
+import { FindOrdersResponse } from 'src/order/aplication/dtos/responses/find-orders.response';
 import { IEventPublisher } from 'src/common/aplication/events/event-publisher.interfaces';
 import { IEventSubscriber } from 'src/common/aplication/events/event-suscriber.interface';
 import { OrderRegisteredEvent } from 'src/order/domain/events/order-registered.event';
@@ -36,6 +52,11 @@ import { OrmOrderRepository } from '../repositories/order/orm-order.repository';
 import { RabbitMQEventPublisher } from 'src/common/infraestructure/events/publishers/rabbittMq.publisher';
 import { ExceptionDecorator } from 'src/common/aplication/aspects/exceptionDecorator';
 import { CreateOrderService } from 'src/order/aplication/services/create-order.service';
+import {
+  FindOrderByIdService,
+  FindOrdersByUserIdService,
+  FindOrdersService,
+} from 'src/order/aplication/services';
 import { RegisteredOrderEventMapper } from '../mappers/domain-event-mappers/registered-order.event.mapper';
 import { IMapper } from 'src/common/aplication/mappers/mapper.interface';
 import { OrderItem } from 'src/order/domain/entities/order-item';
@@ -96,6 +117,15 @@ export class OrderController {
 
   //? Services
   private createOrderService: IService<CreateOrderRequest, CreateOrderResponse>;
+  private findOrderByIdService: IService<
+    FindOrderByIdRequest,
+    FindOrderByIdResponse
+  >;
+  private findOrdersByUserIdService: IService<
+    FindOrdersByIdUserRequest,
+    FindOrdersByIdUserResponse
+  >;
+  private findOrdersService: IService<FindOrdersRequest, FindOrdersResponse>;
 
   //? Event Publisher
   private readonly _eventPublisher: IEventPublisher;
@@ -168,6 +198,17 @@ export class OrderController {
         this.genId,
       ),
     );
+    this.findOrdersService = new ExceptionDecorator(
+      new FindOrdersService(this._odmOrderRepository),
+    );
+
+    this.findOrderByIdService = new ExceptionDecorator(
+      new FindOrderByIdService(this._odmOrderRepository),
+    );
+
+    this.findOrdersByUserIdService = new ExceptionDecorator(
+      new FindOrdersByUserIdService(this._odmOrderRepository),
+    );
 
     //* Subscribe to events
     this._eventPublisher.subscribe(
@@ -192,6 +233,63 @@ export class OrderController {
     const response = await this.createOrderService.execute(request);
     if (response.isSuccess()) {
       return response.getValue().dataToString();
+    }
+    return response;
+  }
+
+  @Get(':id')
+  @ApiFoundResponse({ description: 'Order found successfully' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  async findOrderById(@Param('id') id: string) {
+    const request = new FindOrderByIdRequest(id);
+
+    const response = await this.findOrderByIdService.execute(request);
+    if (response.isSuccess()) {
+      return response.getValue();
+    }
+    return response;
+  }
+
+  @Get('user/:userId')
+  @ApiFoundResponse({ description: 'Orders found successfully' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  async findOrdersByUserId(
+    @Param('userId') userId: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
+    const pagination =
+      limit && offset
+        ? { limit: parseInt(limit), offset: parseInt(offset) }
+        : undefined;
+    const request = new FindOrdersByIdUserRequest(userId, pagination);
+
+    const response = await this.findOrdersByUserIdService.execute(request);
+    if (response.isSuccess()) {
+      return response.getValue();
+    }
+    return response;
+  }
+
+  @Get()
+  @ApiFoundResponse({ description: 'Orders found successfully' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  async findOrders(
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
+    const pagination =
+      limit && offset
+        ? { limit: parseInt(limit), offset: parseInt(offset) }
+        : undefined;
+    const request = new FindOrdersRequest(pagination);
+
+    const response = await this.findOrdersService.execute(request);
+    if (response.isSuccess()) {
+      return response.getValue();
     }
     return response;
   }
