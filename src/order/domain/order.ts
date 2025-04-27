@@ -32,6 +32,10 @@ export class Order extends AggregateRoot<OrderIdVo> {
     this.orderItems = orderItems;
   }
 
+  public getUser(): UserIdVo {
+    return this.user;
+  }
+
   public getStatus(): OrderStatusVo {
     return this.status;
   }

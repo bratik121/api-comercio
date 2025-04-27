@@ -48,19 +48,20 @@ export class OrmOrderEntity {
   })
   updatedAt?: Date;
 
+  @Column({ type: 'uuid' })
+  id_user: string;
+
   static create(
     id: string,
-    user: OrmUserEntity,
+    id_user: string,
     status: OrderStatus,
     totalPrice: number,
-    orderItems: OrmOrderItemEntity[],
   ): OrmOrderEntity {
     const order = new OrmOrderEntity();
     order.id = id;
-    order.user = user;
+    order.id_user = id_user;
     order.status = status;
     order.totalPrice = totalPrice;
-    order.orderItems = orderItems;
 
     return order;
   }

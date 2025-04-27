@@ -5,22 +5,30 @@ import {
   OrderItemQuantityVo,
 } from '../value-objects/order-item';
 import { ProductIdVo } from 'src/products/domain/value-objects';
+import { OrderIdVo } from '../value-objects';
 
 export class OrderItem extends Entity<OrderItemIdVo> {
+  private order: OrderIdVo;
   private product: ProductIdVo;
   private purchasedPrice: OrderItemPurchasedPriceVo;
   private quantity: OrderItemQuantityVo;
 
   private constructor(
     id: OrderItemIdVo,
+    order: OrderIdVo,
     product: ProductIdVo,
     purchasedPrice: OrderItemPurchasedPriceVo,
     quantity: OrderItemQuantityVo,
   ) {
     super(id);
+    this.order = order;
     this.product = product;
     this.purchasedPrice = purchasedPrice;
     this.quantity = quantity;
+  }
+
+  public getOrder(): OrderIdVo {
+    return this.order;
   }
 
   public getProduct(): ProductIdVo {
@@ -37,10 +45,11 @@ export class OrderItem extends Entity<OrderItemIdVo> {
 
   static create(
     id: OrderItemIdVo,
+    order: OrderIdVo,
     product: ProductIdVo,
     purchasedPrice: OrderItemPurchasedPriceVo,
     quantity: OrderItemQuantityVo,
   ): OrderItem {
-    return new OrderItem(id, product, purchasedPrice, quantity);
+    return new OrderItem(id, order, product, purchasedPrice, quantity);
   }
 }

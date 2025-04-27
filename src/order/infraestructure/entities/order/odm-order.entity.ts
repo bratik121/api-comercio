@@ -31,14 +31,12 @@ export class OdmOrderEntity {
     userId: string,
     status: OrderStatus,
     totalPrice: number,
-    orderItems: OdmOrderItemEntity[],
   ): OdmOrderEntity {
     const order = new OdmOrderEntity();
     order.id = id;
     order.userId = userId;
     order.status = status;
     order.totalPrice = totalPrice;
-    order.orderItems = orderItems;
     return order;
   }
 }

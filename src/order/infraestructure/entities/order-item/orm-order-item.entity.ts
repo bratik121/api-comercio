@@ -18,20 +18,26 @@ export class OrmOrderItemEntity {
   @Column('decimal', { precision: 10, scale: 2 })
   purchasedPrice: number;
 
+  @Column({ type: 'uuid' })
+  id_order: string;
+
+  @Column({ type: 'uuid' })
+  id_product: string;
+
   @Column('int')
   quantity: number;
 
   static create(
     id: string,
-    order: OrmOrderEntity,
-    product: OrmProductEntity,
+    id_order: string,
+    id_product: string,
     purchasedPrice: number,
     quantity: number,
   ): OrmOrderItemEntity {
     const orderItem = new OrmOrderItemEntity();
     orderItem.id = id;
-    orderItem.order = order;
-    orderItem.product = product;
+    orderItem.id_order = id_order;
+    orderItem.id_product = id_product;
     orderItem.purchasedPrice = purchasedPrice;
     orderItem.quantity = quantity;
 
