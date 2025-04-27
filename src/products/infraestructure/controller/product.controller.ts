@@ -7,6 +7,8 @@ import {
   Post,
   UseGuards,
   Query,
+  Put,
+  Patch,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -38,24 +40,33 @@ import {
   FindProductByIdResponse,
   FindProductsRequest,
   FindProductsResponse,
+  UpdateProductRequest,
+  UpdateProductResponse,
 } from 'src/products/aplication/dtos';
 import { IEventPublisher } from 'src/common/aplication/events/event-publisher.interfaces';
 import { IEventSubscriber } from 'src/common/aplication/events/event-suscriber.interface';
-import { ProductRegistered } from 'src/products/domain/events';
+import {
+  ProductRegisteredEvent,
+  ProductUpdatedEvent,
+} from 'src/products/domain/events';
 import { EntityManager } from 'typeorm';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { OdmProductRepository } from '../repositories/odm-repositories/odm-product-repositoty';
 import { OrmProductRepository } from '../repositories/orm-repositories/orm-product.repository';
-import { OdmSaveProductEvent } from '../events';
+import { OdmSaveProductEvent, OdmUpdateProductEvent } from '../events';
 import {
   CreateProductService,
   FindProductByIdService,
   FindProductsService,
+  UpdateProductService,
 } from 'src/products/aplication/services';
-import { RegisteredProductMapper } from '../mappers/domain-event-mappers';
+import {
+  RegisteredProductMapper,
+  UpdatedProductEventMapper,
+} from '../mappers/domain-event-mappers';
 import { RabbitMQEventPublisher } from 'src/common/infraestructure/events/publishers/rabbittMq.publisher';
-import { CreateProductDto } from '../dtos';
+import { CreateProductDto, UpdateProductDto } from '../dtos';
 import { Channel } from 'amqplib';
 import { ExceptionDecorator } from 'src/common/aplication/aspects/exceptionDecorator';
 import { JwtAuthGuard } from 'src/auth/infraestructure/guards/jwt-guard.guard';
@@ -94,9 +105,14 @@ export class ProductController {
     FindProductsRequest,
     FindProductsResponse
   >;
+  private updateProductService: IService<
+    UpdateProductRequest,
+    UpdateProductResponse
+  >;
 
   //? Events
-  private readonly _saveProductEvent: IEventSubscriber<ProductRegistered>;
+  private readonly _saveProductEvent: IEventSubscriber<ProductRegisteredEvent>;
+  private readonly _updateProductEvent: IEventSubscriber<ProductUpdatedEvent>;
 
   constructor(
     @Inject('RABBITMQ_CONNECTION') private readonly channel: Channel,
@@ -134,16 +150,34 @@ export class ProductController {
       new FindProductsService(this._odmProductRepository),
     );
 
+    this.updateProductService = new ExceptionDecorator(
+      new UpdateProductService(
+        this._ormProductRepository,
+        this._odmProductRepository,
+        this._eventPublisher,
+      ),
+    );
+
     //* Events
     this._saveProductEvent = new OdmSaveProductEvent(
       this._odmProductRepository,
     );
 
+    this._updateProductEvent = new OdmUpdateProductEvent(
+      this._odmProductRepository,
+    );
+
     //* Subscribe to events
     this._eventPublisher.subscribe(
-      ProductRegistered.name,
+      ProductRegisteredEvent.name,
       [this._saveProductEvent],
       RegisteredProductMapper,
+    );
+
+    this._eventPublisher.subscribe(
+      ProductUpdatedEvent.name,
+      [this._updateProductEvent],
+      UpdatedProductEventMapper,
     );
   }
 
@@ -194,6 +228,26 @@ export class ProductController {
     const response = await this.findProductsService.execute(request);
     if (response.isSuccess()) {
       return response.getValue();
+    }
+    return response;
+  }
+
+  @Patch(':id')
+  @ApiOkResponse({ description: 'Product updated successfully' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  async updateProduct(@Param('id') id: string, @Body() body: UpdateProductDto) {
+    const request = new UpdateProductRequest(
+      id,
+      body.name,
+      body.description,
+      body.price,
+      body.stock,
+    );
+
+    const response = await this.updateProductService.execute(request);
+    if (response.isSuccess()) {
+      return response.getValue().dataToString();
     }
     return response;
   }

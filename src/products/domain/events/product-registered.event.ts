@@ -7,7 +7,7 @@ import {
   ProductStockVo,
 } from '../value-objects';
 
-export class ProductRegistered extends DomainEvent {
+export class ProductRegisteredEvent extends DomainEvent {
   private constructor(
     public readonly id: ProductIdVo,
     public readonly name: ProductNameVo,
@@ -24,8 +24,8 @@ export class ProductRegistered extends DomainEvent {
     description: ProductDescriptionVo,
     price: ProductPriceVo,
     stock: ProductStockVo,
-  ): ProductRegistered {
-    return new ProductRegistered(id, name, description, price, stock);
+  ): ProductRegisteredEvent {
+    return new ProductRegisteredEvent(id, name, description, price, stock);
   }
 
   serialize(): string {

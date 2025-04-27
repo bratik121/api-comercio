@@ -8,7 +8,7 @@ import {
 import { AggregateRoot } from 'src/common/domain/aggregate-root';
 import {
   ProductCreatedEvent,
-  ProductRegistered,
+  ProductRegisteredEvent,
   ProductUpdatedEvent,
 } from './events';
 import { DomainEvent } from 'src/common/domain/domain-event';
@@ -77,7 +77,7 @@ export class Product extends AggregateRoot<ProductIdVo> {
 
   Register() {
     this.apply(
-      ProductRegistered.create(
+      ProductRegisteredEvent.create(
         this.getId(),
         this.name,
         this.description,

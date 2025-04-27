@@ -1,4 +1,4 @@
-import { ProductRegistered } from 'src/products/domain/events/product-registered.event';
+import { ProductRegisteredEvent } from 'src/products/domain/events/product-registered.event';
 import {
   ProductIdVo,
   ProductNameVo,
@@ -9,8 +9,8 @@ import {
 
 export function RegisteredProductMapper(
   json: Record<any, any>,
-): ProductRegistered {
-  return ProductRegistered.create(
+): ProductRegisteredEvent {
+  return ProductRegisteredEvent.create(
     ProductIdVo.create(json.id.value),
     ProductNameVo.create(json.name.value),
     ProductDescriptionVo.create(json.description.value),

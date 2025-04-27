@@ -106,7 +106,7 @@ export class OdmProductRepository implements IOdmProductRepository {
     try {
       const productEntity = this.productMapper.toPersistence(product);
       const updatedProduct = await this.productModel
-        .findByIdAndUpdate(productEntity.id, productEntity, { new: true })
+        .updateOne({ id: product.getId().getId() }, productEntity)
         .exec();
 
       if (!updatedProduct) {
@@ -117,9 +117,7 @@ export class OdmProductRepository implements IOdmProductRepository {
         );
       }
 
-      return Result.success<Product>(
-        this.productMapper.toDomain(updatedProduct),
-      );
+      return Result.success<Product>(product);
     } catch (error) {
       return Result.fail<Product>(
         new UpdateProductException(

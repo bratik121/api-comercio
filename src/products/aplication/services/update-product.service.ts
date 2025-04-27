@@ -13,18 +13,22 @@ import { NotFoundProductException } from 'src/products/infraestructure/exception
 import { Product } from 'src/products/domain/product';
 import { UpdateProductRequest, UpdateProductResponse } from '../dtos';
 import { IEventPublisher } from 'src/common/aplication/events/event-publisher.interfaces';
+import { IOrmProductRepository } from 'src/products/domain/repositories';
 
 export class UpdateProductService extends IService<
   UpdateProductRequest,
   UpdateProductResponse
 > {
   private readonly _odmProductRepository: IOdmProductRepository;
+  private readonly _ormProductRepository: IOrmProductRepository;
   private readonly eventPublisher: IEventPublisher;
   constructor(
+    ormProductRepository: IOrmProductRepository,
     odmProductRepository: IOdmProductRepository,
     eventPublisher: IEventPublisher,
   ) {
     super();
+    this._ormProductRepository = ormProductRepository;
     this._odmProductRepository = odmProductRepository;
     this.eventPublisher = eventPublisher;
   }
@@ -69,7 +73,7 @@ export class UpdateProductService extends IService<
     );
 
     const saveResult =
-      await this._odmProductRepository.updateProduct(updatedProduct);
+      await this._ormProductRepository.updateProduct(updatedProduct);
 
     if (saveResult.isFailure()) {
       return Result.fail<UpdateProductResponse>(saveResult.getError());
