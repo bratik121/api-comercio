@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { OdmOrderItemEntityModel } from 'src/order/infraestructure/entities/order-item/odm-order-item.entity';
+import { OdmOrderEntityModel } from 'src/order/infraestructure/entities/order/odm-order.entity';
 import { OdmProductEntityModel } from 'src/products/infraestructure/entities';
 import { OdmUserEntityModel } from 'src/user/infraestructure/entities/odm-entities/odm-user.entity';
 
@@ -14,7 +16,12 @@ import { OdmUserEntityModel } from 'src/user/infraestructure/entities/odm-entiti
         authSource: configService.get<string>('MONGO_AUTH_SOURCE'),
       }),
     }),
-    MongooseModule.forFeature([OdmUserEntityModel, OdmProductEntityModel]),
+    MongooseModule.forFeature([
+      OdmUserEntityModel,
+      OdmProductEntityModel,
+      OdmOrderEntityModel,
+      OdmOrderItemEntityModel,
+    ]),
   ],
   exports: [MongooseModule],
 })

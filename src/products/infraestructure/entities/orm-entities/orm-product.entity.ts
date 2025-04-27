@@ -1,7 +1,9 @@
+import { OrmOrderItemEntity } from 'src/order/infraestructure/entities/order-item';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -22,6 +24,12 @@ export class OrmProductEntity {
 
   @Column('int')
   stock: number;
+
+  @OneToMany(() => OrmOrderItemEntity, (orderItem) => orderItem.product, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  orderItems: OrmOrderItemEntity[];
 
   @CreateDateColumn({
     name: 'created_at',

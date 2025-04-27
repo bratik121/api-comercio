@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory, ModelDefinition } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
+import { OdmOrderItemEntity } from 'src/order/infraestructure/entities/order-item/odm-order-item.entity';
 
 @Schema({ collection: 'product', timestamps: true })
 export class OdmProductEntity {
@@ -17,6 +18,12 @@ export class OdmProductEntity {
 
   @Prop({ required: true, type: Number })
   stock: number;
+
+  @Prop({
+    type: [{ type: Types.ObjectId, ref: 'order_item', default: [] }],
+    default: [],
+  })
+  orderItems: OdmOrderItemEntity[];
 
   @Prop({ required: true, default: Date.now })
   createdAt: Date;
@@ -43,6 +50,17 @@ export class OdmProductEntity {
 
 export const OdmProductEntitySchema =
   SchemaFactory.createForClass(OdmProductEntity);
+
+OdmProductEntitySchema.pre('deleteOne', async function (next) {
+  const product = await this.model.findOne(this.getQuery());
+  const productId = product.id;
+
+  await this.model.db.model('order_item').deleteMany({
+    productId: productId,
+  });
+
+  next();
+});
 
 export const OdmProductEntityModel: ModelDefinition = {
   name: 'product',
