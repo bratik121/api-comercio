@@ -140,4 +140,27 @@ export class OdmProductRepository implements IOdmProductRepository {
       );
     }
   }
+  async deleteProduct(id: ProductIdVo): Promise<Result<Product>> {
+    try {
+      const product = await this.productModel
+        .findOneAndDelete({ id: id.getId() })
+        .exec();
+
+      if (!product) {
+        return Result.fail<Product>(
+          new NotFoundProductException(
+            `Producto con id ${id.getId()} no encontrado`,
+          ),
+        );
+      }
+
+      return Result.success<Product>(this.productMapper.toDomain(product));
+    } catch (error) {
+      return Result.fail<Product>(
+        new PersistenceException(
+          `Error al eliminar el producto: ${error.message}`,
+        ),
+      );
+    }
+  }
 }

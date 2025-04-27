@@ -9,4 +9,5 @@ export interface IOrmProductRepository {
   saveProduct(product: Product): Promise<Result<Product>>;
   updateProduct(product: Product): Promise<Result<Product>>;
   findProducts(pagination?: IPagination): Promise<Result<Product[]>>;
+  deleteProduct(id: ProductIdVo): Promise<Result<Product>>;
 }

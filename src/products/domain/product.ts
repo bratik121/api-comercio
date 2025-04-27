@@ -8,6 +8,7 @@ import {
 import { AggregateRoot } from 'src/common/domain/aggregate-root';
 import {
   ProductCreatedEvent,
+  ProductDeletedEvent,
   ProductRegisteredEvent,
   ProductUpdatedEvent,
 } from './events';
@@ -96,6 +97,10 @@ export class Product extends AggregateRoot<ProductIdVo> {
     this.apply(
       ProductUpdatedEvent.create(this.getId(), name, description, price, stock),
     );
+  }
+
+  Delete() {
+    this.apply(ProductDeletedEvent.create(this.getId()));
   }
 
   static create(

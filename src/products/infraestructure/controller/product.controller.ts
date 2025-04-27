@@ -9,6 +9,7 @@ import {
   Query,
   Put,
   Patch,
+  Delete,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -36,6 +37,8 @@ import { IService } from 'src/common/aplication/services/IServices';
 import {
   CreateProductRequest,
   CreateProductResponse,
+  DeleteProductRequest,
+  DeleteProductResponse,
   FindProductByIdRequest,
   FindProductByIdResponse,
   FindProductsRequest,
@@ -46,6 +49,7 @@ import {
 import { IEventPublisher } from 'src/common/aplication/events/event-publisher.interfaces';
 import { IEventSubscriber } from 'src/common/aplication/events/event-suscriber.interface';
 import {
+  ProductDeletedEvent,
   ProductRegisteredEvent,
   ProductUpdatedEvent,
 } from 'src/products/domain/events';
@@ -54,14 +58,20 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { OdmProductRepository } from '../repositories/odm-repositories/odm-product-repositoty';
 import { OrmProductRepository } from '../repositories/orm-repositories/orm-product.repository';
-import { OdmSaveProductEvent, OdmUpdateProductEvent } from '../events';
+import {
+  OdmDeleteProductEvent,
+  OdmSaveProductEvent,
+  OdmUpdateProductEvent,
+} from '../events';
 import {
   CreateProductService,
+  DeleteProductService,
   FindProductByIdService,
   FindProductsService,
   UpdateProductService,
 } from 'src/products/aplication/services';
 import {
+  DeletedProductEventMapper,
   RegisteredProductMapper,
   UpdatedProductEventMapper,
 } from '../mappers/domain-event-mappers';
@@ -109,10 +119,15 @@ export class ProductController {
     UpdateProductRequest,
     UpdateProductResponse
   >;
+  private deleteProductService: IService<
+    DeleteProductRequest,
+    DeleteProductResponse
+  >;
 
   //? Events
   private readonly _saveProductEvent: IEventSubscriber<ProductRegisteredEvent>;
   private readonly _updateProductEvent: IEventSubscriber<ProductUpdatedEvent>;
+  private readonly _deleteProductEvent: IEventSubscriber<ProductDeletedEvent>;
 
   constructor(
     @Inject('RABBITMQ_CONNECTION') private readonly channel: Channel,
@@ -158,12 +173,24 @@ export class ProductController {
       ),
     );
 
+    this.deleteProductService = new ExceptionDecorator(
+      new DeleteProductService(
+        this._ormProductRepository,
+        this._odmProductRepository,
+        this._eventPublisher,
+      ),
+    );
+
     //* Events
     this._saveProductEvent = new OdmSaveProductEvent(
       this._odmProductRepository,
     );
 
     this._updateProductEvent = new OdmUpdateProductEvent(
+      this._odmProductRepository,
+    );
+
+    this._deleteProductEvent = new OdmDeleteProductEvent(
       this._odmProductRepository,
     );
 
@@ -178,6 +205,12 @@ export class ProductController {
       ProductUpdatedEvent.name,
       [this._updateProductEvent],
       UpdatedProductEventMapper,
+    );
+
+    this._eventPublisher.subscribe(
+      ProductDeletedEvent.name,
+      [this._deleteProductEvent],
+      DeletedProductEventMapper,
     );
   }
 
@@ -249,6 +282,20 @@ export class ProductController {
     );
 
     const response = await this.updateProductService.execute(request);
+    if (response.isSuccess()) {
+      return response.getValue().dataToString();
+    }
+    return response;
+  }
+
+  @Delete(':id')
+  @ApiOkResponse({ description: 'Product deleted successfully' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  async deleteProduct(@Param('id') id: string) {
+    const request = new DeleteProductRequest(id);
+
+    const response = await this.deleteProductService.execute(request);
     if (response.isSuccess()) {
       return response.getValue().dataToString();
     }
