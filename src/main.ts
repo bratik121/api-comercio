@@ -11,7 +11,9 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Comercios API')
-    .setDescription('Endpoints API REST para la aplicacion de Comercios')
+    .setDescription(
+      'Endpoints API REST para la aplicacion de Comercios - Hecha por Brii 🧡',
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .build();
