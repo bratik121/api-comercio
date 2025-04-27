@@ -11,6 +11,7 @@ import {
   UpdateProductException,
 } from '../../exceptions';
 import { PersistenceException } from 'src/common/exceptions';
+import { IPagination } from 'src/common/domain/pagination.interface';
 
 export class OdmProductRepository implements IOdmProductRepository {
   private readonly productModel: Model<OdmProductEntity>;
@@ -73,9 +74,22 @@ export class OdmProductRepository implements IOdmProductRepository {
     }
   }
 
-  async findProducts(): Promise<Result<Product[]>> {
+  async findProducts(pagination?: IPagination): Promise<Result<Product[]>> {
     try {
-      const products = await this.productModel.find().exec();
+      const query = this.productModel.find();
+
+      // Aplicar paginación si está definida
+      if (pagination) {
+        if (pagination.limit) {
+          query.limit(pagination.limit);
+        }
+        if (pagination.offset) {
+          query.skip(pagination.offset);
+        }
+      }
+
+      const products = await query.exec();
+
       return Result.success<Product[]>(
         products.map((product) => this.productMapper.toDomain(product)),
       );

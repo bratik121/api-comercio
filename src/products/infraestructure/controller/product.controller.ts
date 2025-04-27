@@ -219,10 +219,13 @@ export class ProductController {
   @ApiOkResponse({ description: 'Products found successfully' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   async findProducts(
-    @Query('limit') limit?: number,
-    @Query('offset') offset?: number,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
   ) {
-    const pagination = limit && offset ? { limit, offset } : undefined;
+    const pagination =
+      limit && offset
+        ? { limit: parseInt(limit), offset: parseInt(offset) }
+        : undefined;
     const request = new FindProductsRequest(pagination);
 
     const response = await this.findProductsService.execute(request);
