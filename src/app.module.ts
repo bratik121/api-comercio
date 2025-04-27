@@ -11,6 +11,7 @@ import { UserController } from './user/infraestructure/controller/user.controlle
 import { AuthController } from './auth/infraestructure/controller/auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './auth/infraestructure/strategies/jwt.strategy';
+import { ProductController } from './products/infraestructure/controller/product.controller';
 
 @Module({
   imports: [
@@ -30,7 +31,12 @@ import { JwtStrategy } from './auth/infraestructure/strategies/jwt.strategy';
     OdmDatabaseModule,
     RabbitMQModule,
   ],
-  controllers: [AppController, AuthController, UserController],
+  controllers: [
+    AppController,
+    AuthController,
+    UserController,
+    ProductController,
+  ],
   providers: [JwtStrategy, AppService],
 })
 export class AppModule {}
