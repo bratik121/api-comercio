@@ -19,11 +19,6 @@ export class OdmProductEntity {
   @Prop({ required: true, type: Number })
   stock: number;
 
-  @Prop({
-    type: [{ type: Types.ObjectId, ref: 'order_item' }],
-  })
-  orderItems: OdmOrderItemEntity[];
-
   @Prop({ required: true, default: Date.now })
   createdAt: Date;
 
