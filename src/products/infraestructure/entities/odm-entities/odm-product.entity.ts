@@ -20,8 +20,7 @@ export class OdmProductEntity {
   stock: number;
 
   @Prop({
-    type: [{ type: Types.ObjectId, ref: 'order_item', default: [] }],
-    default: [],
+    type: [{ type: Types.ObjectId, ref: 'order_item' }],
   })
   orderItems: OdmOrderItemEntity[];
 
